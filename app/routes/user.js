@@ -122,13 +122,11 @@ module.exports.setRouter = (app,passport) => {
 	// handle the callback after facebook has authenticated the user
 	app.get('/login/facebook/callback',
 		passport.authenticate('facebook', {
-			successRedirect : '/home',
 			failureRedirect : '/'
 		})
     );
     app.get('/api/logout', (req, res)=>{
-        req.logout();
-        res.redirect('/');
+        res.send(req.logout());
         
     })
     
