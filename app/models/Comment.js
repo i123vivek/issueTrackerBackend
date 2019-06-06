@@ -20,11 +20,11 @@ let commentSchema = new Schema({
         type: String,
         default: ''
     },
-    reporter: {
+    commenter: {
         type: String,
         default: ''
     },
-    reporterEmail: {
+    commenterEmail: {
         type: String,
         default: ''
     },

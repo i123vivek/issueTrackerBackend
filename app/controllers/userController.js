@@ -28,6 +28,7 @@ let getLocalUser = (req, res) => {
                 let apiResponse = response.generate(true, 'No User Found', 404, null)
                 res.send(apiResponse)
             } else {
+                console.log('result is',result[0].email);
                 logger.info('User Found', 'userController: getLocalUser')
                 let apiResponse = response.generate(false, 'All Users Details Found', 200, result)
                 res.send(apiResponse)
@@ -56,6 +57,30 @@ let getSocialUser = (req, res) => {
             }
         })
 }
+
+// let getAllUser = (req,res) =>{
+//     var allUserList = [];
+//     let getLocalUser = () =>{
+//         return new Promise((resolve,reject) =>{
+//             UserModel.find()
+//                 .exec((err,details) =>{
+//                     if(err){
+//                         logger.error(err.message, 'userController: getLocalUser', 10)
+//                         let apiResponse = response.generate(true, 'Failed To find local User', 500, null)
+//                         reject(apiResponse)
+//                     } else if(check.isEmpty(details)){
+//                         logger.info('no local user found', 'userController: getLocalUser');
+//                         let apiResponse = response.generate(false, 'no local user Found', 404, details)
+//                         resolve(apiResponse)
+//                     } else{
+//                         for(let x in details){
+                            
+//                         }
+//                     }
+//                 })
+//         })
+//     }
+// }
 
 let getSingleUser = (req, res) => {
     UserModel.findOne({ 'userId': req.params.userId })
@@ -410,6 +435,137 @@ let loginFunction = (req, res) => {
 // end of the login function 
 
 
+let socialSignin =(req,res) =>{
+
+    let filterUserDetails =()=>{
+        return new Promise ((resolve,reject)=>{
+
+
+            if(check.isEmpty(req.user)) {
+
+                logger.error('User Details  Passed is empty', 'userController: socilaSignin()', 7)
+                let apiResponse = response.generate(true, 'No User Details Found orUser Details  Passed is empty', 404, null)
+                reject(apiResponse)
+
+            }
+            else{
+
+                let userObj = req.user.toObject()
+
+                delete userObj.password
+                delete userObj._id
+                delete userObj.__v
+    
+    
+                resolve(userObj);
+    
+
+            }
+           
+
+        })
+    } //end of filterUserDeatails
+
+
+
+    let generateToken = (userDetails) => {
+        console.log("generate token");
+        return new Promise((resolve, reject) => {
+            token.generateToken(userDetails, (err, tokenDetails) => {
+                if (err) {
+                    console.log(err)
+                    let apiResponse = response.generate(true, 'Failed To Generate Token', 500, null)
+                    reject(apiResponse)
+                } else {
+                    tokenDetails.userId = userDetails.userId
+                    tokenDetails.userDetails = userDetails
+                    resolve(tokenDetails)
+                    console.log("token is generated");
+                }
+            })
+        })
+    }
+    // end of generateToken() function.
+
+
+    let saveToken = (tokenDetails) => {
+        console.log("save token");
+        return new Promise((resolve, reject) => {
+            AuthModel.findOne({ userId: tokenDetails.userId }, (err, retrievedTokenDetails) => {
+                if (err) {
+                    console.log(err.message, 'userController: saveToken', 10)
+                    let apiResponse = response.generate(true, 'Failed To Generate Token', 500, null)
+                    reject(apiResponse)
+                } else if (check.isEmpty(retrievedTokenDetails)) {
+                    let newAuthToken = new AuthModel({
+                        userId: tokenDetails.userId,
+                        authToken: tokenDetails.token,
+                        tokenSecret: tokenDetails.tokenSecret,
+                        tokenGenerationTime: time.now()
+                    })
+                    newAuthToken.save((err, newTokenDetails) => {
+                        if (err) {
+                            console.log(err)
+                            logger.error(err.message, 'userController: saveToken', 10)
+                            let apiResponse = response.generate(true, 'Failed To Generate Token', 500, null)
+                            reject(apiResponse)
+                        } else {
+                            let responseBody = {
+                                authToken: newTokenDetails.authToken,
+                                userDetails: tokenDetails.userDetails
+                            }
+                            resolve(responseBody)
+                        }
+                    })
+                } else {
+                    retrievedTokenDetails.authToken = tokenDetails.token
+                    retrievedTokenDetails.tokenSecret = tokenDetails.tokenSecret
+                    retrievedTokenDetails.tokenGenerationTime = time.now()
+                    retrievedTokenDetails.save((err, newTokenDetails) => {
+                        if (err) {
+                            console.log(err)
+                            logger.error(err.message, 'userController: saveToken', 10)
+                            let apiResponse = response.generate(true, 'Failed To Generate Token', 500, null)
+                            reject(apiResponse)
+                        } else {
+                            let responseBody = {
+                                authToken: newTokenDetails.authToken,
+                                userDetails: tokenDetails.userDetails
+                            }
+                            resolve(responseBody)
+                        }
+                    })
+                }
+            })
+        })
+    }
+    // end of saveToken() function.
+
+
+    filterUserDetails(req,res)
+    .then(generateToken)
+        .then(saveToken)
+        .then((resolve) => {
+            let apiResponse = response.generate(false, ' Social Login Successful', 200, resolve)
+            res.status(200)
+            res.send(apiResponse)
+            // console.log("response send on successful social login",res)
+        })
+        .catch((err) => {
+            console.log("errorhandler");
+            console.log(err);
+            res.status(err.status)
+            res.send(err)
+        })
+
+
+
+
+
+
+}
+
+
 let logout = (req, res) => {
 
     AuthModel.findOneAndDelete({ userId: req.user.userId }, (err, result) => {
@@ -429,7 +585,77 @@ let logout = (req, res) => {
 
 
 
-} // end of the logout function.
+} // end of the logout funct
+
+let getAllUser =(req,res)=>
+{
+
+    let getAllLocalUser = () =>
+    {
+        return new Promise ((resolve, reject) => {
+
+            UserModel.find()
+            .select('-__v -_id')
+            .lean()
+            .exec((err, result) => {
+
+            if (err) {
+                console.log(err)
+                logger.error(err.message, 'userController: getAllUser', 10)
+                let apiResponse = response.generate(true, 'Failed to find local user for all user details', 500, null)
+                reject(apiResponse)
+            }
+
+            else{
+                resolve(result)
+            }
+
+        })
+            
+        })
+
+    }
+
+
+    let getAllSocialUserAndFilter = (localUserResult) => {
+        return new Promise((resolve,reject) =>{
+            SocialUserModel.find()
+            .select('-__v -_id')
+            .lean()
+            .exec((err, result) => {
+                if (err) {
+                    console.log(err)
+                    logger.error(err.message, 'userController: getAllUser', 10)
+                    let apiResponse = response.generate(true, 'Failed to find social user for all user details', 500, null)
+                    reject(apiResponse)
+                }
+
+                else {
+                    let filterUserObj = check.compareAndFilter(localUserResult,result)
+
+                    resolve(filterUserObj)
+                }
+            })
+        })
+    }
+
+    getAllLocalUser(req,res)
+    .then(getAllSocialUserAndFilter)
+    .then((resolve)=>{
+        let apiResponse = response.generate(false, 'get All User', 200, resolve)
+            res.status(200)
+            res.send(apiResponse)
+
+    })
+
+    .catch((err) => {
+        console.log("errorhandler");
+        console.log(err);
+        res.status(err.status)
+        res.send(err)
+    })
+
+}
 
 
 
@@ -438,11 +664,13 @@ module.exports = {
 
     getLocalUser: getLocalUser,
     getSocialUser: getSocialUser,
+    getAllUser:getAllUser,
     getSingleUser: getSingleUser,
     deleteUser: deleteUser,
     editUser: editUser,
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
+    socialSignin:socialSignin,
     logout: logout
 
 }// end exports

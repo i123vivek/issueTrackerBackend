@@ -18,6 +18,8 @@ const IssueModel = mongoose.model('Issue');
 const CommentModel = mongoose.model('Comment');
 const WatcherModel = mongoose.model('Watcher');
 
+const notificationController = require ('./notificationController')
+
 let getAllIssue = (req, res) => {
     IssueModel.find()
         .select('-__v -_id')
@@ -39,6 +41,7 @@ let getAllIssue = (req, res) => {
             }
         })
 }  // end of getAllIssue function.
+
 
 let getSingleIssue = (req, res) => {
     IssueModel.findOne({ 'issueId': req.params.issueId })
@@ -62,6 +65,27 @@ let getSingleIssue = (req, res) => {
         })
 } //end of getSingleIssue function.
 
+let getUserIssues = (req,res) =>{
+    IssueModel.find({'issueAssigneeEmail': req.params.email})
+        .select('-__v -_id')
+        .exec((err, result) => {
+            if (err) {
+                console.log(err)
+                logger.error(err.message, 'issueController: getUserIssues', 10)
+                let apiResponse = response.generate(true, 'Failed To Find Issues of a user', 500, null)
+                res.send(apiResponse)
+            } else if (check.isEmpty(result)) {
+                logger.info('No Issue Found', 'issueController:getUserIssues')
+                let apiResponse = response.generate(true, 'No Issues Found Of a user', 404, null)
+
+                res.send(apiResponse)
+            } else {
+                let apiResponse = response.generate(false, 'All issues found of a user', 200, result)
+                res.send(apiResponse)
+            }
+        })
+} // end of getUserIssues function.
+
 let issueCreator = (req,res) =>{
     let validateIssueInput = () =>{
         return new Promise((resolve, reject) => {
@@ -75,7 +99,7 @@ let issueCreator = (req,res) =>{
                 }
             } else {
                 logger.error('Field Missing During issue Creation', 'issueController: createIssue()', 5)
-                let apiResponse = response.generate(true, 'One or More Parameter(s) is missing', 400, null)
+                let apiResponse = response.generate(true, 'Email Parameter(s) is missing', 400, null)
                 reject(apiResponse)
             }
         })
@@ -102,12 +126,15 @@ let issueCreator = (req,res) =>{
                     reject(apiResponse)
                 } else {
                     let newIssueObj = newIssue.toObject();
+                    eventEmitter.emit("new-issue-created", newIssueObj);
+                    console.log('issue crated',newIssueObj)
                     resolve(newIssueObj)
                 }
             })
         })
     }
 
+   
     validateIssueInput(req, res)
         .then(createIssue)
         .then((resolve) => {
@@ -120,6 +147,16 @@ let issueCreator = (req,res) =>{
             res.send(err);
         })
 }  // end of issueCreator function.
+
+eventEmitter.on("new-issue-created", (issueData) => {
+      
+   
+     notificationController.createANewNotificationObj(issueData);
+
+
+
+
+})
 
 let editIssue = (req,res) =>{
     let options = req.body;
@@ -136,11 +173,45 @@ let editIssue = (req,res) =>{
         } else {
             console.log("issue details edited");
             let apiResponse = response.generate(false, 'Issue details edited', 200, result)
+            eventEmitter.emit("issue-edited", req.params.issueId);
+
             res.send(apiResponse)
             console.log(result);
         }
     })
 } //end of editIssue function.
+
+eventEmitter.on("issue-edited", (issueData) => {
+
+    IssueModel.findOne({ 'issueId': issueData })
+    .select('-__v -_id')
+    
+    .exec((err, result) => {
+        if (err) {
+            console.log(err);
+            logger.error(err.message, 'issueController: eventEmitter.on-> new issue created', 10)
+            // let apiResponse = response.generate(true, 'Failed To Find Issue Details', 500, null)
+            // res.send(apiResponse)
+        } else if (check.isEmpty(result)) {
+            logger.info('No Issue found', 'issueController: eventEmitter.on-> new issue created')
+            // let apiResponse = response.generate(true, 'No issue found', 404, null)
+            // res.send(apiResponse)
+        } else {
+            logger.info('Issue found', 'issueController: eventEmitter.on-> new issue created');
+
+            console.log("resul t in event emmiter",result)
+            notificationController.createANewNotificationObjOnEdit(result)
+            // let apiResponse = response.generate(false, 'Issue details found', 200, result)
+            // res.send(apiResponse)
+        }
+    })
+
+    // notificationController.createANewNotificationObjOnEdit(issueData)
+
+
+
+
+})
 
 let deleteIssue = (req,res) =>{
     IssueModel.findOneAndDelete({'issueId': req.params.issueId }).exec((err,result) =>{
@@ -184,8 +255,8 @@ let writeComment = (req, res) => {
                         commentId: shortid.generate(),
                         issueId: req.body.issueId,
                         comment: req.body.comment,
-                        reporter: req.body.reporter,
-                        reporterEmail: req.body.reporterEmail,
+                        commenter: req.body.commenter,
+                       commenterEmail: req.body.commenterEmail,
                         createdOn: time.now()
                     })
                     newComment.save((err,newComment)=>{
@@ -326,21 +397,9 @@ let searchIssue = (req,res) =>{
         let apiResponse = response.generate(true, "No text entered for search", 500, null);
         res.send(apiResponse);
     } else {
-        //var size = 1;
-        //var skipPageNo = req.query.skipPageNo;
-        //var skip = size * (skipPageNo-1);
-        //var limit = size;
-        // if(skipPageNo < 0 || skipPageNo === 0) {
-        //     logger.error(true, "issueController:searchIssue", 5);
-        //     let apiResponse = response.generate(true, "invalid skip page number, should start with 1", 500, null);
-        //     res.send(apiResponse);
-        // } else {
+        
             IssueModel.find({ $text: { $search: req.query.text } })
-                //.limit(size)
-                //.skip(skipPageNo)
                 
-                // .limit(1)
-                // .skip(parseInt(req.query.skip))
                 .exec((err, result) =>{
                     if (err){
                         console.log(err)
@@ -365,6 +424,7 @@ let searchIssue = (req,res) =>{
 module.exports = {
     getAllIssue: getAllIssue,
     getSingleIssue: getSingleIssue,
+    getUserIssues: getUserIssues,
     issueCreator: issueCreator,
     editIssue: editIssue,
     deleteIssue: deleteIssue,

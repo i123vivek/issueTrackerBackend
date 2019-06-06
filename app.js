@@ -72,27 +72,7 @@ fs.readdirSync(routesPath).forEach(function (file) {
 });
 // end bootstrap route
 
-// const publicVapidKey = 'BKdJhjazQ5pvzC-Ae8KixMRum6i5WRKbc0LpBDZbdYwP7W40emjR2h6uzxF4CwixvCJM97CFNZkJlqpwlfaDpKo';
-// const privateVapidKey = 'bsltaeD1NYdSKsA5oCUHlMF4HrKq5IkkR2c8zR_LaV0';
 
-// // identify who is sending push notification
-// webPush.setVapidDetails('mailto:test@test.com',publicVapidKey,privateVapidKey);
-
-// // subscribe routes
-// app.post('/subscribe',(req,res) =>{
-//   // get pushSubscription object
-//   const subscription = req.body;
-
-//   //send 201 - resource created.
-//   res.status(201).json({});
-
-//   // create payload
-//   const payload = json.stringify({title: 'push test'});
-
-//   // pass object into sendNotification
-//   webPush.sendNotification(subscription, payload).catch(err => console.log(err));
-  
-// })
 
 // calling global 404 handler after route
 
@@ -113,6 +93,13 @@ server.on('listening', onListening);
 
 // end server listening code
 
+
+// socket io connection handler 
+const socketLib = require("./app/libs/socketLib");
+const socketServer = socketLib.setServer(server);
+
+
+// end socketio connection handler
 /**
  * Event listener for HTTP server "error" event.
  */

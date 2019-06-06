@@ -34,8 +34,12 @@ module.exports = function(passport) {
 
 				// if the user is found, then log them in
 	            if (user) {
-					//user.socialToken = true;
-					//user.createdOn = time.now();
+					// if(user.socialToken === false){
+					// 	user.socialToken = true;
+					// }
+					// if (user.sociallyCreatedOn === null || user.sociallyCreatedOn === '' || user.sociallyCreatedOn === undefined){
+					// 	user.sociallyCreatedOn = time.now();
+					// }
 
 					user.save(function(err,user) {
 	                    if (err){
@@ -55,7 +59,7 @@ module.exports = function(passport) {
 						email: profile.emails[0].value,
 						firstName: profile.name.givenName,
 						lastName: profile.name.familyName,
-						
+						//socialToken: true,
 						createdOn: time.now(),
 
 					});

@@ -16,7 +16,13 @@ module.exports.setRouter = (app,passport) => {
 
     // _______________route for user. ________________________________.
 
+    //app.get(`${baseUrl}/view/allUsers`,userController.getAllUser);
+
     app.get(`${baseUrl}/view/localUsers`,userController.getLocalUser);
+
+    app.get(`${baseUrl}/view/allUsers`,userController.getAllUser);
+
+
 
     app.get(`${baseUrl}/view/socialUsers`,  userController.getSocialUser);
 
@@ -28,33 +34,35 @@ module.exports.setRouter = (app,passport) => {
 
     // _______________ route for issue. _______________________________.
 
-    app.get(`${baseUrl}/view/allIssues`, issueController.getAllIssue);
+    app.get(`${baseUrl}/view/allIssues`,auth.isAuthorized, issueController.getAllIssue);
 
-    app.get(`${baseUrl}/:issueId/issueDetails`, issueController.getSingleIssue);
+    app.get(`${baseUrl}/:email/userIssues`,auth.isAuthorized,issueController.getUserIssues);
 
-    app.post(`${baseUrl}/issue/create`, issueController.issueCreator);
+    app.get(`${baseUrl}/:issueId/issueDetails`,auth.isAuthorized, issueController.getSingleIssue);
 
-    app.put(`${baseUrl}/:issueId/editIssue`, issueController.editIssue);
+    app.post(`${baseUrl}/issue/create`,auth.isAuthorized, issueController.issueCreator);
 
-    app.post(`${baseUrl}/:issueId/deleteIssue`, issueController.deleteIssue);
+    app.put(`${baseUrl}/:issueId/editIssue`,auth.isAuthorized, issueController.editIssue);
+
+    app.post(`${baseUrl}/:issueId/deleteIssue`,auth.isAuthorized, issueController.deleteIssue);
 
     // _______________________route for comment. ________________________.
 
-    app.post(`${baseUrl}/write/comment`,issueController.writeComment);
+    app.post(`${baseUrl}/write/comment`,auth.isAuthorized,issueController.writeComment);
 
-    app.get(`${baseUrl}/:issueId/view/comment`,issueController.viewComment);
+    app.get(`${baseUrl}/:issueId/view/comment`,auth.isAuthorized,issueController.viewComment);
 
     // _______________________route for watcher. _________________________.
 
-    app.post(`${baseUrl}/add/watcher`, issueController.addAsWatcher);
+    app.post(`${baseUrl}/add/watcher`,auth.isAuthorized, issueController.addAsWatcher);
 
-    app.get(`${baseUrl}/get/watcherList`, issueController.getWatcherList);
+    app.get(`${baseUrl}/get/watcherList`,auth.isAuthorized, issueController.getWatcherList);
 
-    app.post(`${baseUrl}/:watcherId/deleteWatcher`, issueController.deleteWatcher);
+    app.post(`${baseUrl}/:watcherId/deleteWatcher`,auth.isAuthorized, issueController.deleteWatcher);
 
     // _______________________ route for search. ___________________________.
 
-    app.get(`${baseUrl}/issue/search`, issueController.searchIssue);
+    app.get(`${baseUrl}/issue/search`,auth.isAuthorized, issueController.searchIssue);
 
 
     // params: firstName, lastName, email, mobileNumber, password
@@ -113,7 +121,7 @@ module.exports.setRouter = (app,passport) => {
     // auth token params: userId.
     app.post(`${baseUrl}/logout`,auth.isAuthorized, userController.logout);
 
-    //for passport-----------------------------------------------------------------
+    //routes for passport-->socialLogin------------------------------------------------
 
     app.get('/login/facebook', 
 		passport.authenticate('facebook', { scope : ['email'] }
@@ -122,13 +130,14 @@ module.exports.setRouter = (app,passport) => {
 	// handle the callback after facebook has authenticated the user
 	app.get('/login/facebook/callback',
 		passport.authenticate('facebook', {
-			successRedirect : '/home',
+			// successRedirect : '/home',
 			failureRedirect : '/'
-		})
+		}),userController.socialSignin
     );
     app.get('/api/logout', (req, res)=>{
-        req.logout();
-        res.redirect('/');
+        // req.logout();
+        // res.redirect('/');
+        res.send(req.logout());
         
     })
     
