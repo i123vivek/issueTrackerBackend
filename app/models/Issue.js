@@ -39,7 +39,11 @@ let issueSchema = new Schema({
     issueCreatedOn: {
         type: Date,
         default: ""
-    }
+    },
+    screenshotName: { type: String, default: '' },
+
+    
+    screenshotPath: { type: String, default: '' },
 })
 
 // creating a text index.

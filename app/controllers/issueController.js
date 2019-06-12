@@ -9,6 +9,7 @@ const check = require('../libs/checkLib');
 const token = require('../libs/tokenLib');
 const events = require('events');
 const eventEmitter = new events.EventEmitter();
+const fs = require("fs");
 
 /* Models */
 const AuthModel = mongoose.model('Auth');
@@ -107,6 +108,11 @@ let issueCreator = (req,res) =>{
 
     let createIssue = () =>{
         return new Promise((resolve,reject)=>{
+            let fileName = req.file.path.split('\\')[0]
+
+            console.log('filepath',fileName)
+
+            console.log("filein req",req.file)
             let newIssue = new IssueModel({
                 issueId: shortid.generate(),
                 issueStatus: req.body.issueStatus,
@@ -116,7 +122,9 @@ let issueCreator = (req,res) =>{
                 issueReporterEmail: req.body.email.toLowerCase(),
                 issueAssignee: req.body.issueAssignee,
                 issueAssigneeEmail: req.body.issueAssigneeEmail.toLowerCase(),
-                issueCreatedOn: time.now()
+                issueCreatedOn: time.now(),
+                screenshotName:req.file.filename,
+                screenshotPath:fileName
             })
             newIssue.save((err, newIssue) => {
                 if (err) {
@@ -158,9 +166,64 @@ eventEmitter.on("new-issue-created", (issueData) => {
 
 })
 
+//to be only for getting path
+let  findScreenShotPathOfAIssue =(issueId) => {
+    console.log("path function called")
+    IssueModel.findOne({issueId:issueId},(err,result)=>{
+        if (err)
+        {
+  
+        }
+        else if (check.isEmpty(result))
+        {
+            
+        }
+        else{
+         console.log ('resultin find fun',result.screenshotPath)
+         let path =result.screenshotPath;
+             console.log('path here is',path)
+
+             eventEmitter.emit("detlet this screenshot",path)
+
+             finalPath =path
+             console.log('pa12345',finalPath)
+        //  return path ;
+  
+        }
+    })
+  }
+
+  eventEmitter.on("detlet this screenshot",(pathData)=>{
+
+    console.log("pathDataHereis",pathData);
+    fs.unlinkSync(pathData);
+
+
+
+})
+
+
+
+
+
 let editIssue = (req,res) =>{
-    let options = req.body;
-    IssueModel.updateOne({'issueId': req.params.issueId }, options).exec((err,result) =>{
+    // fs.unlinkSync('./uploads/' +  req.body.previous);
+    // let options = req.body;
+    if (req.file){
+        let fileName = req.file.path.split('\\')[0]
+        let finalPath
+
+       
+
+        findScreenShotPathOfAIssue(req.params.issueId);
+    //  console.log(check.findScreenShotPathOfAIssue(req.params.issueId))
+      
+        // console.log('pa',finalPath)
+        // fs.unlinkSync('uploads' +req.body.previous);
+        let options = req.body; 
+        options.screenshotName = req.file.filename;
+        options.screenshotPath = fileName
+        IssueModel.updateOne({'issueId': req.params.issueId }, options).exec((err,result) =>{
         if (err) {
             console.log(err)
             logger.error(err.message, 'issueController: editIssue', 10)
@@ -178,7 +241,32 @@ let editIssue = (req,res) =>{
             res.send(apiResponse)
             console.log(result);
         }
-    })
+    })}
+
+    else{
+        let options = req.body;
+        options.screenshot = `${req.body.previous}`;
+        IssueModel.updateOne({'issueId': req.params.issueId }, options).exec((err,result) =>{
+            if (err) {
+                console.log(err)
+                logger.error(err.message, 'issueController: editIssue', 10)
+                let apiResponse = response.generate(true, 'Failed To edit issue details', 500, null)
+                res.send(apiResponse)
+            } else if (check.isEmpty(result)) {
+                logger.info('No Issue Found', 'issueController: editIssue')
+                let apiResponse = response.generate(true, 'No Issue Found', 404, null)
+                res.send(apiResponse)
+            } else {
+                console.log("issue details edited");
+                let apiResponse = response.generate(false, 'Issue details edited', 200, result)
+                eventEmitter.emit("issue-edited", req.params.issueId);
+    
+                res.send(apiResponse)
+                console.log(result);
+            }
+        })}
+    
+    
 } //end of editIssue function.
 
 eventEmitter.on("issue-edited", (issueData) => {
@@ -199,7 +287,7 @@ eventEmitter.on("issue-edited", (issueData) => {
         } else {
             logger.info('Issue found', 'issueController: eventEmitter.on-> new issue created');
 
-            console.log("resul t in event emmiter",result)
+            // console.log("resul t in event emmiter",result)
             notificationController.createANewNotificationObjOnEdit(result)
             // let apiResponse = response.generate(false, 'Issue details found', 200, result)
             // res.send(apiResponse)
@@ -213,7 +301,12 @@ eventEmitter.on("issue-edited", (issueData) => {
 
 })
 
+
+
+
+
 let deleteIssue = (req,res) =>{
+    // findScreenShotPathOfAIssue(req.params.issueId);
     IssueModel.findOneAndDelete({'issueId': req.params.issueId }).exec((err,result) =>{
         if(err){
             console.log(err)
@@ -225,6 +318,11 @@ let deleteIssue = (req,res) =>{
             let apiResponse = response.generate(true, 'No Issue Found', 404, null)
             res.send(apiResponse)
         } else {
+            
+        // findScreenShotPathOfAIssue(req.params.issueId);
+        let pathData = result.screenshotPath
+        // fs.unlinkSync(pathData);
+            eventEmitter.emit("delete ScreenShot On Delete",pathData)
             console.log("issue deleted successfully");
             let apiResponse = response.generate(false, 'Issue is deleted  successfully', 200, result)
             res.send(apiResponse)
@@ -232,13 +330,18 @@ let deleteIssue = (req,res) =>{
     })
 } // end of deleteIssue function.
 
+eventEmitter.on("delete ScreenShot On Delete",(pathData)=>{
+    console.log('path in delelete event on',pathData)
+    fs.unlinkSync(pathData);
+})
+
 
 
 
 let writeComment = (req, res) => {
         IssueModel.findOne({issueId: req.body.issueId})
             .select('-__v -_id')
-            .lean()
+            // .lean()
             .exec((err,result) =>{
                 if(err){
                     console.log(err)
@@ -274,12 +377,19 @@ let writeComment = (req, res) => {
                             console.log("comment created");
                             logger.info("comment created", "issueController: writeComment");
                             let apiResponse = response.generate(false, 'Comment Found', 200, newComment);
+                            eventEmitter.emit("comment-write", newComment);
                             res.send(apiResponse);
                         }
                     })
                 }
             })
 }
+
+eventEmitter.on("comment-write",(commentData)=>{
+
+    console.log("iside event emmiterr",commentData)
+    notificationController.createNotificationObjOnComment(commentData)
+})
 
 
 let viewComment =(req,res) =>{
@@ -353,7 +463,7 @@ let addAsWatcher = (req,res) =>{
 } // end of addAsWatcher function.
 
 let getWatcherList = (req,res) =>{
-    WatcherModel.find()
+    WatcherModel.find({'issueId': req.body.issueId})
         .select('-__v -_id')
         .lean()
         .exec((err,result) =>{
@@ -392,13 +502,13 @@ let deleteWatcher = (req,res) =>{
 } // end of deleteWatcher function.
 
 let searchIssue = (req,res) =>{
-    if (check.isEmpty(req.query.text)){
+    if (check.isEmpty(req.params.text)){
         logger.error(true, "issueController:searchIssue", 10);
         let apiResponse = response.generate(true, "No text entered for search", 500, null);
         res.send(apiResponse);
     } else {
         
-            IssueModel.find({ $text: { $search: req.query.text } })
+            IssueModel.find({ $text: { $search: req.params.text } })
                 
                 .exec((err, result) =>{
                     if (err){
@@ -420,6 +530,8 @@ let searchIssue = (req,res) =>{
         //}
     }
 }
+
+
 
 module.exports = {
     getAllIssue: getAllIssue,

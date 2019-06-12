@@ -1,4 +1,7 @@
 'use srict'
+const mongoose = require('mongoose');
+const IssueModel = mongoose.model('Issue');
+
 
 let trim = (x) => {
   let value = String(x)
@@ -46,11 +49,30 @@ let compareAndFilter =(array1,array2)=>
 
 
 }
+let  findScreenShotPathOfAIssue =(issueId) => {
+  IssueModel.findOne({issueId:issueId},(err,result)=>{
+      if (err)
+      {
 
+      }
+      else if (check.isEmpty(result))
+      {
+          
+      }
+      else{
+       console.log ('resultin find fun',result.screenshotPath)
+       let path =result.screenshotPath;
+           console.log('path here is',path)
+       return path ;
+
+      }
+  })
+}
 /**
  * exporting functions.
  */
 module.exports = {
   isEmpty: isEmpty,
-  compareAndFilter:compareAndFilter
+  compareAndFilter:compareAndFilter,
+  findScreenShotPathOfAIssue:findScreenShotPathOfAIssue
 }

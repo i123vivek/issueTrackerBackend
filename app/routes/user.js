@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const userController = require("./../../app/controllers/userController");
 const issueController = require("./../../app/controllers/issueController")
+const multerLib = require('./../multer/multer')
+const notificationController = require("./../controllers/notificationController")
 const appConfig = require("./../../config/appConfig")
 const auth = require('./../middlewares/auth')
 const passport = require('passport')
 const mongoose = require('mongoose')
+
+// const upload = multer.upload
 
 
 module.exports.setRouter = (app,passport) => {
@@ -40,9 +44,9 @@ module.exports.setRouter = (app,passport) => {
 
     app.get(`${baseUrl}/:issueId/issueDetails`,auth.isAuthorized, issueController.getSingleIssue);
 
-    app.post(`${baseUrl}/issue/create`,auth.isAuthorized, issueController.issueCreator);
+    app.post(`${baseUrl}/issue/create`,auth.isAuthorized,multerLib.upload.single('image'), issueController.issueCreator);
 
-    app.put(`${baseUrl}/:issueId/editIssue`,auth.isAuthorized, issueController.editIssue);
+    app.put(`${baseUrl}/:issueId/editIssue`,auth.isAuthorized,multerLib.upload.single('image'), issueController.editIssue);
 
     app.post(`${baseUrl}/:issueId/deleteIssue`,auth.isAuthorized, issueController.deleteIssue);
 
@@ -62,7 +66,7 @@ module.exports.setRouter = (app,passport) => {
 
     // _______________________ route for search. ___________________________.
 
-    app.get(`${baseUrl}/issue/search`,auth.isAuthorized, issueController.searchIssue);
+    app.get(`${baseUrl}/issue/:text/search`,auth.isAuthorized, issueController.searchIssue);
 
 
     // params: firstName, lastName, email, mobileNumber, password
@@ -130,21 +134,23 @@ module.exports.setRouter = (app,passport) => {
 	// handle the callback after facebook has authenticated the user
 	app.get('/login/facebook/callback',
 		passport.authenticate('facebook', {
-<<<<<<< HEAD
 			// successRedirect : '/home',
-=======
->>>>>>> 1f45d5c72cf0e98ee43d3a68101beefbf0be7908
 			failureRedirect : '/'
 		}),userController.socialSignin
     );
     app.get('/api/logout', (req, res)=>{
-<<<<<<< HEAD
         // req.logout();
         // res.redirect('/');
-=======
->>>>>>> 1f45d5c72cf0e98ee43d3a68101beefbf0be7908
         res.send(req.logout());
         
     })
+
+
+    //to mark notification aS seen
+
+    app.get(`${baseUrl}/mark/notification/seen`,auth.isAuthorized,notificationController.markNotificationAsSeen);
+
+
+    // app.post('/uploadphoto', upload.single('picture'),multer.uploadImg)
     
 }
