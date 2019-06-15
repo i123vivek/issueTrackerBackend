@@ -21,6 +21,97 @@ module.exports.setRouter = (app, passport) => {
     // _______________route for user. ________________________________.
 
 
+    // params: firstName, lastName, email, mobileNumber, password
+    app.post(`${baseUrl}/signup`, userController.signUpFunction);
+
+    /**
+     * @apiGroup users
+     * @apiVersion  1.0.0
+     * @api {post} /api/v1/users/signup api for user signup.
+     *
+     * @apiParam {string} firstName firstName of the user. (body params) (required)
+     * @apiParam {string} lastName lastName of the user. (body params) (required)
+     * @apiParam {string} email email of the user. (body params) (required)
+     * @apiParam {number} mobileNumber mobileNumber of the user. (body params) (required)
+     * @apiParam {string} password password of the user. (body params) (required)
+     *
+     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
+         {
+            "error": false,
+            "message": "User created",
+            "status": 200,
+            "data": {
+                "userId": "qyxn6RQKu",
+                "firstName": "rakesh",
+                "lastName": "kr",
+                "userName": "rakesh@gmail.com",
+                "email": "rakesh@gmail.com",
+                "mobileNumber": 9431582058,
+                "createdOn": "2019-06-15T21:34:40.000Z",
+                "_id": "5d0564700ad9de204fecd8b0",
+                "__v": 0
+            }
+        }
+    */
+
+    // params: email, password.
+    app.post(`${baseUrl}/login`, userController.loginFunction);
+
+    /**
+     * @apiGroup users
+     * @apiVersion  1.0.0
+     * @api {post} /api/v1/users/login api for user login.
+     *
+     * @apiParam {string} email email of the user. (body params) (required)
+     * @apiParam {string} password password of the user. (body params) (required)
+     *
+     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
+         {
+            "error": false,
+            "message": "Login Successful",
+            "status": 200,
+            "data": {
+                "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RpZCI6IkprdkJWVmgyWiIsImlhdCI6MTU2MDYyMTE1NDkyMywiZXhwIjoxNTYwNzA3NTU0OTIzLCJzdWIiOiJhdXRoVG9rZW4iLCJpc3MiOiJlZC1wMS1Jc3N1ZVRyYWNrZXJUb29sIiwiZGF0YSI6eyJ1c2VySWQiOiJLRDRoaS1QZEMiLCJmaXJzdE5hbWUiOiJ2aXZlayIsImxhc3ROYW1lIjoicmFpIiwidXNlck5hbWUiOiJpMTIzdml2ZWtAZ21haWwuY29tIiwiZW1haWwiOiJpMTIzdml2ZWtAZ21haWwuY29tIiwibW9iaWxlTnVtYmVyIjo5ODk4NzY3NjAwLCJjcmVhdGVkT24iOiIyMDE5LTA2LTA2VDE2OjAwOjQ2LjAwMFoifX0.Pn8aiCgAxGzFR_wcs_ZUg1EK-d1Vw9Z3xuhOCqKYQW4",
+                "userDetails": {
+                    "userId": "KD4hi-PdC",
+                    "firstName": "vivek",
+                    "lastName": "rai",
+                    "userName": "i123vivek@gmail.com",
+                    "email": "i123vivek@gmail.com",
+                    "mobileNumber": 9898767600,
+                    "createdOn": "2019-06-06T16:00:46.000Z"
+                }
+            }
+        }
+
+    */
+
+    // auth token params: userId.
+    app.post(`${baseUrl}/logout`, auth.isAuthorized, userController.logout);
+
+    /**
+     * @apiGroup users
+     * @apiVersion  1.0.0
+     * @api {post} /api/v1/users/logout to logout user.
+     *
+     * @apiParam {string} userId userId of the user. (auth headers) (required)
+     * @apiParam {String} authToken The token for authentication.(Send authToken as query parameter, body parameter or as a header)
+     *
+     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
+         {
+            "error": false,
+            "message": "Logged Out Successfully",
+            "status": 200,
+            "data": null
+        }
+    */
+
     //params: authToken.
     app.get(`${baseUrl}/view/localUsers`, auth.isAuthorized, userController.getLocalUser);
 
@@ -91,6 +182,46 @@ module.exports.setRouter = (app, passport) => {
                     "email": "birendra@gmail.com",
                     "mobileNumber": 9431582058,
                     "createdOn": "2019-06-15T16:14:37.000Z"
+                }
+            ]
+        }
+     * 
+     */
+
+     //params: authToken.
+    app.get(`${baseUrl}/view/socialUsers`, auth.isAuthorized, userController.getSocialUser);
+
+    /**
+     * 
+     * @apiGroup users
+     * @apiVersion  1.0.0
+     * @api {get} /api/v1/users/view/socialUsers to get all social users.
+     * @apiParam {string} authToken authToken of the loggedin user. (query params) (required).
+     * 
+     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
+     * 
+     * {
+            "error": false,
+            "message": "Social User Details Found",
+            "status": 200,
+            "data": [
+                {
+                    "userId": "1426569717486146",
+                    "firstName": "Vivek",
+                    "lastName": "Rai",
+                    "userName": "....vivek@gmail.com",
+                    "email": "....vivek@gmail.com",
+                    "createdOn": "2019-05-19T15:51:49.000Z"
+                },
+                {
+                    "userId": "2120471434916596",
+                    "firstName": "Ashish",
+                    "lastName": "Tiwary",
+                    "userName": "ashish.....@gmail.com",
+                    "email": "ashish.....@gmail.com",
+                    "createdOn": "2019-06-04T11:00:23.000Z"
                 }
             ]
         }
@@ -181,45 +312,7 @@ module.exports.setRouter = (app, passport) => {
     */
 
 
-    //params: authToken.
-    app.get(`${baseUrl}/view/socialUsers`, auth.isAuthorized, userController.getSocialUser);
-
-    /**
-     * 
-     * @apiGroup users
-     * @apiVersion  1.0.0
-     * @api {get} /api/v1/users/view/socialUsers to get all social users.
-     * @apiParam {string} authToken authToken of the loggedin user. (query params) (required).
-     * 
-     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
-     * 
-     * @apiSuccessExample {object} Success-Response:
-     * 
-     * {
-            "error": false,
-            "message": "Social User Details Found",
-            "status": 200,
-            "data": [
-                {
-                    "userId": "1426569717486146",
-                    "firstName": "Vivek",
-                    "lastName": "Rai",
-                    "userName": "....vivek@gmail.com",
-                    "email": "....vivek@gmail.com",
-                    "createdOn": "2019-05-19T15:51:49.000Z"
-                },
-                {
-                    "userId": "2120471434916596",
-                    "firstName": "Ashish",
-                    "lastName": "Tiwary",
-                    "userName": "ashish.....@gmail.com",
-                    "email": "ashish.....@gmail.com",
-                    "createdOn": "2019-06-04T11:00:23.000Z"
-                }
-            ]
-        }
-     * 
-     */
+    
 
     //params: userId,authToken.
     app.get(`${baseUrl}/:userId/details`, auth.isAuthorized, userController.getSingleUser);
@@ -404,6 +497,8 @@ module.exports.setRouter = (app, passport) => {
      * 
      * @apiSuccess {object} myResponse shows error status, message, http status code, result.
      * 
+     * @apiSuccessExample {object} Success-Response:
+     * 
      * {
             "error": false,
             "message": "Issue details found",
@@ -425,7 +520,7 @@ module.exports.setRouter = (app, passport) => {
      * 
      */
 
-    // params: issueStatus,issueTitle,issueDescription,issueReporter,email,issueAssignee,issueAssigneeEmail,image.
+    //params: issueStatus,issueTitle,issueDescription,issueReporter,email,issueAssignee,issueAssigneeEmail,image.
     app.post(`${baseUrl}/issue/create`, auth.isAuthorized, multerLib.upload.single('image'), issueController.issueCreator);
 
     /**
@@ -444,6 +539,8 @@ module.exports.setRouter = (app, passport) => {
      * @apiParam {file} image image of the issue. (body params(form-data)) (required).
      * 
      * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
      * 
      * {
             "error": false,
@@ -473,7 +570,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {put} /api/v1/users/:issueId/editIssue to edit an issue .
      * 
@@ -506,7 +603,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {post} /api/v1/users/write/comment to comment on an issue .
      * 
@@ -543,7 +640,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {get} /api/v1/users/:issueId/view/comment to view comments of an issue .
      * 
@@ -580,7 +677,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {post} /api/v1/users/add/watcher to add as a watcher for an issue .
      * 
@@ -613,7 +710,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {get} /api/v1/users/:issueId/get/watcherList to get watcherList of an issue .
      * 
@@ -656,7 +753,7 @@ module.exports.setRouter = (app, passport) => {
 
     /**
      * 
-     * @apiGroup issue
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {get} /api/v1/users/issue/:text/search to search for issues for the give text .
      * 
@@ -722,120 +819,7 @@ module.exports.setRouter = (app, passport) => {
      * 
      */
 
-
-    // params: firstName, lastName, email, mobileNumber, password
-    app.post(`${baseUrl}/signup`, userController.signUpFunction);
-
-    /**
-     * @apiGroup users
-     * @apiVersion  1.0.0
-     * @api {post} /api/v1/users/signup api for user signup.
-     *
-     * @apiParam {string} firstName firstName of the user. (body params) (required)
-     * @apiParam {string} lastName lastName of the user. (body params) (required)
-     * @apiParam {string} email email of the user. (body params) (required)
-     * @apiParam {number} mobileNumber mobileNumber of the user. (body params) (required)
-     * @apiParam {string} password password of the user. (body params) (required)
-     *
-     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
-     * 
-     * @apiSuccessExample {object} Success-Response:
-         {
-            "error": false,
-            "message": "User created",
-            "status": 200,
-            "data": {
-                "userId": "qyxn6RQKu",
-                "firstName": "rakesh",
-                "lastName": "kr",
-                "userName": "rakesh@gmail.com",
-                "email": "rakesh@gmail.com",
-                "mobileNumber": 9431582058,
-                "createdOn": "2019-06-15T21:34:40.000Z",
-                "_id": "5d0564700ad9de204fecd8b0",
-                "__v": 0
-            }
-        }
-    */
-
-    // params: email, password.
-    app.post(`${baseUrl}/login`, userController.loginFunction);
-
-    /**
-     * @apiGroup users
-     * @apiVersion  1.0.0
-     * @api {post} /api/v1/users/login api for user login.
-     *
-     * @apiParam {string} email email of the user. (body params) (required)
-     * @apiParam {string} password password of the user. (body params) (required)
-     *
-     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
-     * 
-     * @apiSuccessExample {object} Success-Response:
-         {
-            "error": false,
-            "message": "Login Successful",
-            "status": 200,
-            "data": {
-                "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RpZCI6IkprdkJWVmgyWiIsImlhdCI6MTU2MDYyMTE1NDkyMywiZXhwIjoxNTYwNzA3NTU0OTIzLCJzdWIiOiJhdXRoVG9rZW4iLCJpc3MiOiJlZC1wMS1Jc3N1ZVRyYWNrZXJUb29sIiwiZGF0YSI6eyJ1c2VySWQiOiJLRDRoaS1QZEMiLCJmaXJzdE5hbWUiOiJ2aXZlayIsImxhc3ROYW1lIjoicmFpIiwidXNlck5hbWUiOiJpMTIzdml2ZWtAZ21haWwuY29tIiwiZW1haWwiOiJpMTIzdml2ZWtAZ21haWwuY29tIiwibW9iaWxlTnVtYmVyIjo5ODk4NzY3NjAwLCJjcmVhdGVkT24iOiIyMDE5LTA2LTA2VDE2OjAwOjQ2LjAwMFoifX0.Pn8aiCgAxGzFR_wcs_ZUg1EK-d1Vw9Z3xuhOCqKYQW4",
-                "userDetails": {
-                    "userId": "KD4hi-PdC",
-                    "firstName": "vivek",
-                    "lastName": "rai",
-                    "userName": "i123vivek@gmail.com",
-                    "email": "i123vivek@gmail.com",
-                    "mobileNumber": 9898767600,
-                    "createdOn": "2019-06-06T16:00:46.000Z"
-                }
-            }
-        }
-
-    */
-
-    // auth token params: userId.
-    app.post(`${baseUrl}/logout`, auth.isAuthorized, userController.logout);
-
-    /**
-     * @apiGroup users
-     * @apiVersion  1.0.0
-     * @api {post} /api/v1/users/logout to logout user.
-     *
-     * @apiParam {string} userId userId of the user. (auth headers) (required)
-     * @apiParam {String} authToken The token for authentication.(Send authToken as query parameter, body parameter or as a header)
-     *
-     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
-     * 
-     * @apiSuccessExample {object} Success-Response:
-         {
-            "error": false,
-            "message": "Logged Out Successfully",
-            "status": 200,
-            "data": null
-        }
-    */
-
-    //routes for passport-->socialLogin------------------------------------------------
-
-    app.get('/login/facebook',
-        passport.authenticate('facebook', { scope: ['email'] }
-        ));
-
-    // handle the callback after facebook has authenticated the user
-    app.get('/login/facebook/callback',
-        passport.authenticate('facebook', {
-            // successRedirect : '/home',
-            failureRedirect: '/'
-        }), userController.socialSignin
-    );
-    app.get('/api/logout', (req, res) => {
-        // req.logout();
-        // res.redirect('/');
-        res.send(req.logout());
-
-    })
-
-
-    //to mark notification aS seen
+     //to mark notification aS seen
 
     //params: notificationId,authToken
     app.get(`${baseUrl}/mark/notification/seen`, auth.isAuthorized, notificationController.markNotificationAsSeen);
@@ -843,7 +827,7 @@ module.exports.setRouter = (app, passport) => {
     /**
      * 
      * 
-     * @apiGroup users
+     * @apiGroup issues
      * @apiVersion  1.0.0
      * @api {get} /api/v1/users/mark/notification/seen to mark notification as seen.
      *
@@ -875,6 +859,32 @@ module.exports.setRouter = (app, passport) => {
      * 
      */
 
+
+
+    
+
+    //routes for passport-->socialLogin------------------------------------------------
+
+    app.get('/login/facebook',
+        passport.authenticate('facebook', { scope: ['email'] }
+        ));
+
+    // handle the callback after facebook has authenticated the user
+    app.get('/login/facebook/callback',
+        passport.authenticate('facebook', {
+            // successRedirect : '/home',
+            failureRedirect: '/'
+        }), userController.socialSignin
+    );
+    app.get('/api/logout', (req, res) => {
+        // req.logout();
+        // res.redirect('/');
+        res.send(req.logout());
+
+    })
+
+
+    
 
     // app.post('/uploadphoto', upload.single('picture'),multer.uploadImg)
 
