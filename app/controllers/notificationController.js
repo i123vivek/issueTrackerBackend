@@ -128,8 +128,9 @@ let createANewNotificationObjOnEdit = (issueDetails) => {
 
                 // }
                 else {
+                    console.log('result  to send in edit',result)
                     for (let x in result) {
-                        peopleToSendNotification = peopleToSendNotification.push(result[x].watcherEmail)
+                         peopleToSendNotification.push(result[x].watcherEmail)
 
                     }
                     //   console.log("issue Details here in edit",issueDetails)
@@ -213,7 +214,7 @@ let createNotificationObjOnComment = (commentData) => {
 
     let toSetUserEmailTOSendNotification = (commentData) => {
 
-        console.log("commentData in createNotification->78",commentData)
+        console.log("commentData in createNotification->78---------------------------------",commentData)
 
         return new Promise((resolve, reject) => {
 
@@ -227,10 +228,10 @@ let createNotificationObjOnComment = (commentData) => {
                     reject(apiResponse)
                 }
                 else {
-                    // console.log("notificationObj Created successfully On issue-Edit", result)
+                     console.log("notificationObj Created successfully On comment", result)
                     // logger.info("notificationObj Created successfully", 'notificationController: createNewNotification', 1)
                     for (let x in result) {
-                        peopleToSendNotification = peopleToSendNotification.push(result[x].watcherEmail)
+                         peopleToSendNotification.push(result[x].watcherEmail)
 
                     }
 
@@ -352,46 +353,75 @@ let createNotificationObjOnComment = (commentData) => {
 }
 
 let markNotificationAsSeen = (req, res) => {
+    console.log("notification id is:",req.query.notificationId)
+
+    // NotificationModel.find({ notificationId: req.query.notificationId }, (err, result) => {
+    //      console.log("notification result is:", result)
+    //     if (err) {
+    //         console.log(err);
+    //         logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
+    //         let apiResponse = response.generate(true, 'error while find the assignee reporter  details', 400, null)
+    //         res.send(apiResponse)
+    //     }
+    //     else if (check.isEmpty(result)) {
+
+    //         console.log("there are no such notification with this notifcationid");
+    //         logger.error("there are no such notification with this notifcationid", 'notificationController: markNotificationAsSeen', 10)
+    //         let apiResponse = response.generate(true, 'no notification found with this id ', 400, null)
+    //         res.send(apiResponse)
+    //     }
+    //     else{
+    //         resultObj = result.toObject
+    //         resultObj.notificationStatus = 'seen'
+
+    //         console.log('resut here is',resultObj)
+    //         resultObj.save((err,savedDetails)=>{
 
 
-    NotificationModel.find({ notificationId: req.params.notificationId }, (err, result) => {
+    //     if (err) {
+    //         console.log(err);
+    //         logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
+    //         let apiResponse = response.generate(true, 'error while marking notification as seen', 400, null)
+    //         res.send(apiResponse)
+    //     }
+    //     else{
 
-        if (err) {
-            console.log(err);
-            logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
-            let apiResponse = response.generate(true, 'error while find the assignee reporter  details', 400, null)
-            res.send(apiResponse)
-        }
-        else if (check.isEmpty(result)) {
-
-            console.log("there are no such notification with this notifcationid");
-            logger.error("there are no such notification with this notifcationid", 'notificationController: markNotificationAsSeen', 10)
-            let apiResponse = response.generate(true, 'no notification found with this id ', 400, null)
-            res.send(apiResponse)
-        }
-        else{
-            result.notificationStatus = 'seen'
-            result.save((err,savedDetails)=>{
-
-
-        if (err) {
-            console.log(err);
-            logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
-            let apiResponse = response.generate(true, 'error while marking notification as seen', 400, null)
-            res.send(apiResponse)
-        }
-        else{
-
-            let apiResponse = response.generate(false, 'Notification marked as seen & status Updated', 200, savedDetails)
-            res.send(apiResponse)
+    //         let apiResponse = response.generate(false, 'Notification marked as seen & status Updated', 200, savedDetails)
+    //         res.send(apiResponse)
             
+    //     }
+
+
+
+    //         })
+    //     }
+
+    // })
+
+    let options = {
+        notificationStatus :"seen"
+
+    }
+
+
+    NotificationModel.findOneAndUpdate({'notificationId': req.query.notificationId }, options).exec((err,result) =>{
+        if (err) {
+            console.log(err)
+            logger.error(err.message, 'notificationController: markAsSeen', 10)
+            let apiResponse = response.generate(true, 'Failed To edit notification details', 500, null)
+            res.send(apiResponse)
+        } else if (check.isEmpty(result)) {
+            logger.info('No Issue Found', 'notificationController: markAsSeen')
+            let apiResponse = response.generate(true, 'No notification Found', 404, null)
+            res.send(apiResponse)
+        } else {
+            console.log("Marked As Seen");
+            let apiResponse = response.generate(false,"Marked As Seen", 200, result)
+          // eventEmitter.emit("issue-edited", req.params.issueId);
+
+            res.send(apiResponse)
+            console.log(result);
         }
-
-
-
-            })
-        }
-
     })
 
 }

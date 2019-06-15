@@ -113,6 +113,8 @@ let issueCreator = (req,res) =>{
             console.log('filepath',fileName)
 
             console.log("filein req",req.file)
+
+            console.log("body",req.body)
             let newIssue = new IssueModel({
                 issueId: shortid.generate(),
                 issueStatus: req.body.issueStatus,
@@ -210,12 +212,14 @@ let editIssue = (req,res) =>{
     // fs.unlinkSync('./uploads/' +  req.body.previous);
     // let options = req.body;
     if (req.file){
+
+        console.log("in if in edit",req.file)
         let fileName = req.file.path.split('\\')[0]
         let finalPath
 
        
 
-        findScreenShotPathOfAIssue(req.params.issueId);
+        // findScreenShotPathOfAIssue(req.params.issueId);
     //  console.log(check.findScreenShotPathOfAIssue(req.params.issueId))
       
         // console.log('pa',finalPath)
@@ -244,6 +248,8 @@ let editIssue = (req,res) =>{
     })}
 
     else{
+
+        console.log('inside else-------------------------------')
         let options = req.body;
         options.screenshot = `${req.body.previous}`;
         IssueModel.updateOne({'issueId': req.params.issueId }, options).exec((err,result) =>{
@@ -376,7 +382,7 @@ let writeComment = (req, res) => {
                         } else {
                             console.log("comment created");
                             logger.info("comment created", "issueController: writeComment");
-                            let apiResponse = response.generate(false, 'Comment Found', 200, newComment);
+                            let apiResponse = response.generate(false, 'Commented successfully', 200, newComment);
                             eventEmitter.emit("comment-write", newComment);
                             res.send(apiResponse);
                         }
@@ -463,7 +469,7 @@ let addAsWatcher = (req,res) =>{
 } // end of addAsWatcher function.
 
 let getWatcherList = (req,res) =>{
-    WatcherModel.find({'issueId': req.body.issueId})
+    WatcherModel.find({'issueId': req.params.issueId})
         .select('-__v -_id')
         .lean()
         .exec((err,result) =>{

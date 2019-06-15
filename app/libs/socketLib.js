@@ -37,7 +37,7 @@ let setServer = (server) => {
 
     myIo.on('connection', (socket) => {
 
-      //  socket.emit("verifyUser", "");
+      // socket.emit("verifyUser", "");
   socket.on("sendMyNotification",(userEmail)=>{
 
     NotificationModel.find({userEmailToSendNotification:userEmail,notificationStatus:"un-seen"},(err,result)=>{
