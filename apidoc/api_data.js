@@ -573,6 +573,56 @@ define({ "api": [
     "group": "issues",
     "version": "1.0.0",
     "type": "put",
+    "url": "/api/v1/users/:issueId/deleteIssue",
+    "title": "to delete an issue .",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "issueId",
+            "description": "<p>issueId of the issue. (query params) (required).</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken of the loggedIn user. (query params) (required).</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "object",
+            "optional": false,
+            "field": "myResponse",
+            "description": "<p>shows error status, message, http status code, result.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "\n{\n            \"error\": false,\n            \"message\": \"Issue is deleted  successfully\",\n            \"status\": 200,\n            \"data\": {\n                \"issueId\": \"AEPtjYdwI\",\n                \"issueStatus\": \"done\",\n                \"issueTitle\": \"issueTitle1\",\n                \"issueDescription\": \"issue description of issue 2\",\n                \"issueReporter\": \"rahul\",\n                \"issueReporterEmail\": \"rahul12@gmail.com\",\n                \"issueAssignee\": \"vivek\",\n                \"issueAssigneeEmail\": \"i123vivek@gmail.com\",\n                \"issueCreatedOn\": \"2019-06-12T08:10:23.000Z\",\n                \"screenshotName\": \"1560327023794_Screenshot from 2019-05-17 20-49-39.png\",\n                \"screenshotPath\": \"uploads/1560327023794_Screenshot from 2019-05-17 20-49-39.png\",\n                \"_id\": \"5d00b36f983a720cdddd16fe\",\n                \"__v\": 0\n            }\n        }",
+          "type": "object"
+        }
+      ]
+    },
+    "filename": "app/routes/user.js",
+    "groupTitle": "issues",
+    "name": "PutApiV1UsersIssueidDeleteissue"
+  },
+  {
+    "group": "issues",
+    "version": "1.0.0",
+    "type": "put",
     "url": "/api/v1/users/:issueId/editIssue",
     "title": "to edit an issue .",
     "parameter": {
