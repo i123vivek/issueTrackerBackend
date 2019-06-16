@@ -550,7 +550,7 @@ let socialSignin =(req,res) =>{
             res.status(200)
             // res.send(apiResponse)
 
-            res.redirect(`http://localhost:4200/loggedin/${apiResponse.data.authToken}`)
+            res.redirect(`http://www.bhaiyaji.club:4200/loggedin/${apiResponse.data.authToken}`)
             // console.log("response send on successful social login",res)
         })
         .catch((err) => {
