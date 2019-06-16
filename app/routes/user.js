@@ -593,8 +593,45 @@ module.exports.setRouter = (app, passport) => {
         }
      * 
      */
-
+    
+    //params: issueId,authToken
     app.post(`${baseUrl}/:issueId/deleteIssue`, auth.isAuthorized, issueController.deleteIssue);
+
+    /**
+     * 
+     * @apiGroup issues
+     * @apiVersion  1.0.0
+     * @api {put} /api/v1/users/:issueId/deleteIssue to delete an issue .
+     * 
+     * @apiParam {string} issueId issueId of the issue. (query params) (required).
+     * @apiParam {string} authToken authToken of the loggedIn user. (query params) (required).
+     * 
+     * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+     * 
+     * @apiSuccessExample {object} Success-Response:
+     * 
+     * {
+            "error": false,
+            "message": "Issue is deleted  successfully",
+            "status": 200,
+            "data": {
+                "issueId": "AEPtjYdwI",
+                "issueStatus": "done",
+                "issueTitle": "issueTitle1",
+                "issueDescription": "issue description of issue 2",
+                "issueReporter": "rahul",
+                "issueReporterEmail": "rahul12@gmail.com",
+                "issueAssignee": "vivek",
+                "issueAssigneeEmail": "i123vivek@gmail.com",
+                "issueCreatedOn": "2019-06-12T08:10:23.000Z",
+                "screenshotName": "1560327023794_Screenshot from 2019-05-17 20-49-39.png",
+                "screenshotPath": "uploads/1560327023794_Screenshot from 2019-05-17 20-49-39.png",
+                "_id": "5d00b36f983a720cdddd16fe",
+                "__v": 0
+            }
+        }
+     * 
+     */
 
     // _______________________route for comment. ________________________.
 
