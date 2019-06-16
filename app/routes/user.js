@@ -872,8 +872,8 @@ module.exports.setRouter = (app, passport) => {
     // handle the callback after facebook has authenticated the user
     app.get('/login/facebook/callback',
         passport.authenticate('facebook', {
-            // successRedirect : '/home',
-            failureRedirect: '/'
+            // successRedirect : '/',
+            // failureRedirect: '/home'
         }), userController.socialSignin
     );
     app.get('/api/logout', (req, res) => {
@@ -882,6 +882,9 @@ module.exports.setRouter = (app, passport) => {
         res.send(req.logout());
 
     })
+
+
+    app.get(`${baseUrl}/get/Details/full`,userController.getInfoForToken)
 
 
     

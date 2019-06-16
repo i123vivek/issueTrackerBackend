@@ -548,7 +548,9 @@ let socialSignin =(req,res) =>{
         .then((resolve) => {
             let apiResponse = response.generate(false, ' Social Login Successful', 200, resolve)
             res.status(200)
-            res.send(apiResponse)
+            // res.send(apiResponse)
+
+            res.redirect(`http://localhost:4200/loggedin/${apiResponse.data.authToken}`)
             // console.log("response send on successful social login",res)
         })
         .catch((err) => {
@@ -564,6 +566,8 @@ let socialSignin =(req,res) =>{
 
 
 }
+
+
 
 
 let logout = (req, res) => {
@@ -657,6 +661,83 @@ let getAllUser =(req,res)=>
 
 }
 
+let getInfoForToken =(req,res) =>{
+
+    console.log("token in req",req.query.authToken)
+
+
+    let findInAuthModel = () =>{
+
+        return new Promise((resolve,reject) =>{
+            AuthModel.findOne({authToken:req.query.authToken},(err,result)=>{
+                if(err)
+                {
+                    logger.error(err.message, 'userController: getInfoForToken', 10)
+                        let apiResponse = response.generate(true, 'Failed to find  user details of given tocken', 500, null)
+                        reject(apiResponse)
+    
+                } else if (check.isEmpty(result))
+                {
+                    logger.error('No Details Found for token', 'userController: getInfoForToken()', 7)
+                            let apiResponse = response.generate(true, 'No User Details Found for token', 404, null)
+                            reject(apiResponse)
+                }
+    
+                else {
+                    console.log("token details found",result)
+                    resolve(result)
+                }
+    
+            })
+
+        })
+
+       
+    }
+
+    let findUserInfoFromTokenDetails =(tokenDetails)=>{
+
+
+        return new Promise((resolve,reject) =>{
+
+            token.verifyClaimWithoutSecret(tokenDetails.authToken,(err,decoded)=>{
+                if (err)
+                {
+                    logger.error(err.message, 'userController: getInfoForToken', 10)
+                    let apiResponse = response.generate(true, 'Failed to find verify token for user details of given tocken', 500, null)
+                    reject(apiResponse)
+    
+                }
+                else{
+    
+                    console.log("user data after decoding",decoded)
+                    resolve(decoded)
+                }
+            })
+
+        })
+
+        
+    }
+
+    findInAuthModel(req,res)
+    .then(findUserInfoFromTokenDetails)
+    .then((resolve)=>{
+        let apiResponse = response.generate(false, 'get User Details', 200, resolve)
+        res.status(200)
+        res.send(apiResponse)
+    })
+
+
+    .catch((err) => {
+        console.log("errorhandler");
+        console.log(err);
+        res.status(err.status)
+        res.send(err)
+    })
+
+    
+}
 
 
 
@@ -671,6 +752,7 @@ module.exports = {
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     socialSignin:socialSignin,
-    logout: logout
+    logout: logout,
+    getInfoForToken:getInfoForToken
 
 }// end exports
