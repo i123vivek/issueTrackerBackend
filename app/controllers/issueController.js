@@ -324,11 +324,19 @@ let deleteIssue = (req,res) =>{
             let apiResponse = response.generate(true, 'No Issue Found', 404, null)
             res.send(apiResponse)
         } else {
-            
+        console.log("result to test in delete",result)  
+        console.log("result screenshot to test in delete",result.screenshotPath)             
         // findScreenShotPathOfAIssue(req.params.issueId);
-        let pathData = result.screenshotPath
-        // fs.unlinkSync(pathData);
-            eventEmitter.emit("delete ScreenShot On Delete",pathData)
+
+        // if (result.screenshotPath != undefined || result.screenshotPath != null||result.screenshotPath != '')
+        // {
+        //     let pathData = result.screenshotPath
+
+        // console.log('path data to  be passed',pathData)
+        // // fs.unlinkSync(pathData);
+        //     eventEmitter.emit("delete ScreenShot On Delete",pathData)
+        // }
+        
             console.log("issue deleted successfully");
             let apiResponse = response.generate(false, 'Issue is deleted  successfully', 200, result)
             res.send(apiResponse)
@@ -336,10 +344,15 @@ let deleteIssue = (req,res) =>{
     })
 } // end of deleteIssue function.
 
-eventEmitter.on("delete ScreenShot On Delete",(pathData)=>{
-    console.log('path in delelete event on',pathData)
-    fs.unlinkSync(pathData);
-})
+// eventEmitter.on("delete ScreenShot On Delete",(pathData)=>{
+//     console.log('path in delelete event on',pathData)
+//     fs.unlinkSync(pathData);
+
+//     // if (pathData != null ||pathData != undefined||pathData != '')
+//     // {  fs.unlinkSync(pathData);
+//     // }
+  
+// })
 
 
 
