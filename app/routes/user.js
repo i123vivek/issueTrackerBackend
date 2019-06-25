@@ -9,8 +9,6 @@ const auth = require('./../middlewares/auth')
 const passport = require('passport')
 const mongoose = require('mongoose')
 
-// const upload = multer.upload
-
 
 module.exports.setRouter = (app, passport) => {
 
