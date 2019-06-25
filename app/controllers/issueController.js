@@ -112,9 +112,6 @@ let issueCreator = (req,res) =>{
 
             console.log('filepath',fileName)
 
-            console.log("filein req",req.file)
-
-            console.log("body",req.body)
             let newIssue = new IssueModel({
                 issueId: shortid.generate(),
                 issueStatus: req.body.issueStatus,
@@ -209,8 +206,7 @@ let  findScreenShotPathOfAIssue =(issueId) => {
 
 
 let editIssue = (req,res) =>{
-    // fs.unlinkSync('./uploads/' +  req.body.previous);
-    // let options = req.body;
+    
     if (req.file){
 
         console.log("in if in edit",req.file)
@@ -218,12 +214,6 @@ let editIssue = (req,res) =>{
         let finalPath
 
        
-
-        // findScreenShotPathOfAIssue(req.params.issueId);
-    //  console.log(check.findScreenShotPathOfAIssue(req.params.issueId))
-      
-        // console.log('pa',finalPath)
-        // fs.unlinkSync('uploads' +req.body.previous);
         let options = req.body; 
         options.screenshotName = req.file.filename;
         options.screenshotPath = fileName
@@ -313,7 +303,7 @@ eventEmitter.on("issue-edited", (issueData) => {
 
 let deleteIssue = (req,res) =>{
     // findScreenShotPathOfAIssue(req.params.issueId);
-    IssueModel.findOneAndDelete({'issueId': req.params.issueId }).exec((err,result) =>{
+    IssueModel.findOneAndDelete({'issueId': req.params.issueId , }).exec((err,result) =>{
         if(err){
             console.log(err)
             logger.error(err.message, 'issueController: deleteIssue', 10)
@@ -326,16 +316,7 @@ let deleteIssue = (req,res) =>{
         } else {
         console.log("result to test in delete",result)  
         console.log("result screenshot to test in delete",result.screenshotPath)             
-        // findScreenShotPathOfAIssue(req.params.issueId);
-
-        // if (result.screenshotPath != undefined || result.screenshotPath != null||result.screenshotPath != '')
-        // {
-        //     let pathData = result.screenshotPath
-
-        // console.log('path data to  be passed',pathData)
-        // // fs.unlinkSync(pathData);
-        //     eventEmitter.emit("delete ScreenShot On Delete",pathData)
-        // }
+        
         
             console.log("issue deleted successfully");
             let apiResponse = response.generate(false, 'Issue is deleted  successfully', 200, result)
@@ -344,15 +325,6 @@ let deleteIssue = (req,res) =>{
     })
 } // end of deleteIssue function.
 
-// eventEmitter.on("delete ScreenShot On Delete",(pathData)=>{
-//     console.log('path in delelete event on',pathData)
-//     fs.unlinkSync(pathData);
-
-//     // if (pathData != null ||pathData != undefined||pathData != '')
-//     // {  fs.unlinkSync(pathData);
-//     // }
-  
-// })
 
 
 

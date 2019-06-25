@@ -27,8 +27,7 @@ const cron = require("node-cron");
 
 let setServer = (server) => {
 
-    // let allNormalUserList = []
-    // var allOnlineUsers = []
+    
 
 
     let io = socketio.listen(server);

@@ -19,14 +19,6 @@ let notificationSchema = new Schema ({
         type: String,
         default: 'un-seen'
     },
-    // notificationTitle: {
-    //     type: String,
-    //     default: ''
-    // },
-    // NotificationMessage: {
-    //     // type: Object,
-    //     // // default:''
-    // },
     notificationMessage:Object,
     userEmailToSendNotification:{
         type: [String],

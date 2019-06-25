@@ -64,47 +64,6 @@ let createANewNotificationObj = (issueDetails) => {
 
 }
 
-// let createANewNotificationObj =(issueDetails)=>{
-
-//     NotificationModel.findOne({notificationIssueId:issueDetails.issueId,notificationPurpose:"create"},(err,result)=>{
-
-//         if (err){
-//             console.log(err);
-//             logger.error(err.message, 'notificationController: createANewnotificationObj', 10)
-
-//         }else if (check.isEmpty(result)){
-
-//             let peopleToSendNotification = [issueDetails.issueReporterEmail,issueDetails.issueAssigneeEmail]
-//             let newnotificationObj = new NotificationModel ({
-//                 notificationId:shortid.generate(),
-//                 notificationIssueId:issueDetails.issueId,
-//                 notificationStatus:"un-seen",
-//                 notificationMessage:`hey a new issue is created with Details ${issueDetails}`,
-//                 notificationPurpose:'create',
-//                 userEmailToSendNotification:peopleToSendNotification
-
-//             })
-
-//             newnotificationObj.save((err, result) => {
-//                 if (err) {
-//                     console.log("error while saving notifiction: ",err)
-//                     logger.error(err.message, 'notificationController: createNewNotification', 10)
-
-//                 } else {
-//                     console.log("notificationObj Created successfully",result)
-//                     logger.info("notificationObj Created successfully",'notificationController: createNewNotification',1)
-//                 }
-//             })
-//         }
-//         else {
-//             console.log("notification obj allready exists for the purpose ",err)
-//             logger.error('notification obj allready exists for the purpose', 'notificationController: createNewNotification', 10)
-
-//         }
-
-//     })
-
-// }
 
 let createANewNotificationObjOnEdit = (issueDetails) => {
 
@@ -121,22 +80,15 @@ let createANewNotificationObjOnEdit = (issueDetails) => {
                     let apiResponse = response.generate(true, 'error while find the watcher  details', 400, null)
                     reject(apiResponse)
                 }
-                // else if (check.isEmpty(result)) {
-
-                //     let apiResponse = response.generate(true, 'ther is no watcher for the given issue', 400, null)
-                //     reject(apiResponse)
-
-                // }
+                
                 else {
                     console.log('result  to send in edit',result)
                     for (let x in result) {
                          peopleToSendNotification.push(result[x].watcherEmail)
 
                     }
-                    //   console.log("issue Details here in edit",issueDetails)
                     let issueDetailsObj = issueDetails.toObject();
 
-                    //  console.log("issue Details here in edit objectified",issueDetailsObj)
                     issueDetailsObj.peopleToSendList = peopleToSendNotification
 
                     // console.log("issue Details here in edit objectified 2",issueDetailsObj)
@@ -176,8 +128,6 @@ let createANewNotificationObjOnEdit = (issueDetails) => {
                     let apiResponse = response.generate(true, 'ther is no watcher for the given issue', 400, null)
                     reject(apiResponse)
                 } else {
-                    // console.log("notificationObj Created successfully On issue-Edit", result)
-                    // logger.info("notificationObj Created successfully", 'notificationController: createNewNotification', 1)
                     resolve(result)
                 }
             })
@@ -293,8 +243,7 @@ let createNotificationObjOnComment = (commentData) => {
                 console.log("error while saving notifiction:obj -comment-create ", err)
                 logger.error(err.message, 'notificationController: createNewNotificationObjFor-IssueEdit', 10)
 
-                // let apiResponse = response.generate(true, 'ther is no watcher for the given issue', 400, null)
-                //reject(apiResponse)
+                
             } else {
                 console.log("notificationObj Created successfully On comment-create", result)
                 logger.info("notificationObj Created successfully", 'notificationController: createNewNotification', 1)
@@ -317,86 +266,17 @@ let createNotificationObjOnComment = (commentData) => {
         .catch((err) => {
             console.log(err);
 
-            //logger ka dekhna hai
+            
             logger.error(err.message, 'notificationController: createNewNotificationObjFor-IssueEdit', 10)
         })
 
-
-
-    //     let newNotificationObj = new NotificationModel({
-
-    //         notificationId: shortid.generate(),
-    //         notificationIssueId: commentData.issueId,
-    //         notificationStatus: "un-seen",
-    //         notificationMessage: commentData,
-    //         notificationPurpose: 'comment-create',
-    //         userEmailToSendNotification: commentData.commenterEmail
-
-    //     })
-
-    //     newNotificationObj.save((err,result)=>{
-
-    //         if (err) {
-    //             console.log("error while saving notifiction:obj -comment-create ", err)
-    //             logger.error(err.message, 'notificationController: createNewNotificationObjFor-IssueEdit', 10)
-
-    //             // let apiResponse = response.generate(true, 'ther is no watcher for the given issue', 400, null)
-    //             //reject(apiResponse)
-    //         } else {
-    //             console.log("notificationObj Created successfully On comment-create", result)
-    //             logger.info("notificationObj Created successfully", 'notificationController: createNewNotification', 1)
-    //             // resolve (result)
-    //         }
-
-    //     })
 
 }
 
 let markNotificationAsSeen = (req, res) => {
     console.log("notification id is:",req.query.notificationId)
 
-    // NotificationModel.find({ notificationId: req.query.notificationId }, (err, result) => {
-    //      console.log("notification result is:", result)
-    //     if (err) {
-    //         console.log(err);
-    //         logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
-    //         let apiResponse = response.generate(true, 'error while find the assignee reporter  details', 400, null)
-    //         res.send(apiResponse)
-    //     }
-    //     else if (check.isEmpty(result)) {
 
-    //         console.log("there are no such notification with this notifcationid");
-    //         logger.error("there are no such notification with this notifcationid", 'notificationController: markNotificationAsSeen', 10)
-    //         let apiResponse = response.generate(true, 'no notification found with this id ', 400, null)
-    //         res.send(apiResponse)
-    //     }
-    //     else{
-    //         resultObj = result.toObject
-    //         resultObj.notificationStatus = 'seen'
-
-    //         console.log('resut here is',resultObj)
-    //         resultObj.save((err,savedDetails)=>{
-
-
-    //     if (err) {
-    //         console.log(err);
-    //         logger.error(err.message, 'notificationController: markNotificationAsSeen', 10)
-    //         let apiResponse = response.generate(true, 'error while marking notification as seen', 400, null)
-    //         res.send(apiResponse)
-    //     }
-    //     else{
-
-    //         let apiResponse = response.generate(false, 'Notification marked as seen & status Updated', 200, savedDetails)
-    //         res.send(apiResponse)
-            
-    //     }
-
-
-
-    //         })
-    //     }
-
-    // })
 
     let options = {
         notificationStatus :"seen"

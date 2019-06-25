@@ -30,18 +30,7 @@ let compareAndFilter =(array1,array2)=>
     return a;
 }
   let finalUserArr =  arrayUnique(array1.concat(array2))
-  // for (let x in userArr1)
-  // {
-  //   for(let y in userArr2)
-  //   {
-  //     if (userArr1[x].email  == userArr2[y].email)
-  //     {
-  //       finalUserArr.push(userArr2[y])
-  //     }
-  //   }
-  // }
-
- //let userArr = userArr1.concat(userArr2);
+  
 
  return finalUserArr;
 

@@ -12,7 +12,7 @@ module.exports = function(passport) {
         clientID        : fbConfig.appID,
         clientSecret    : fbConfig.appSecret,
 		callbackURL     : fbConfig.callbackUrl,
-		//passReqToCallback : true,
+		
 		profileFields: ['id', 'emails', 'name']
     },
 
@@ -34,12 +34,7 @@ module.exports = function(passport) {
 
 				// if the user is found, then log them in
 	            if (user) {
-					// if(user.socialToken === false){
-					// 	user.socialToken = true;
-					// }
-					// if (user.sociallyCreatedOn === null || user.sociallyCreatedOn === '' || user.sociallyCreatedOn === undefined){
-					// 	user.sociallyCreatedOn = time.now();
-					// }
+					
 
 					user.save(function(err,user) {
 	                    if (err){
