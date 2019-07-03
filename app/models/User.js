@@ -39,29 +39,11 @@ let userSchema = new Schema({
     type: Number,
     default: 0
   },
-  // issueWatchList: {
-  //   type: [String],
-
-  // },
-  // sociallyCreatedOn: {
-  //   type: Date,
-  //   default: ""
-  // },
   createdOn: {
     type: Date,
     default: ""
-  },
-  // socialToken : {
-  //   type: Boolean,
-  //   default: false
-  // },
-  // localToken : {
-  //   type: Boolean,
-  //   default: false
-  // }
+  }
   
-
-
 })
 
 

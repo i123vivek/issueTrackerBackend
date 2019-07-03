@@ -27,33 +27,29 @@ const cron = require("node-cron");
 
 let setServer = (server) => {
 
-    
+  let io = socketio.listen(server);
 
+  let myIo = io.of('/')
 
-    let io = socketio.listen(server);
+  myIo.on('connection', (socket) => {
 
-    let myIo = io.of('/')
+    socket.on("sendMyNotification", (userEmail) => {
 
-    myIo.on('connection', (socket) => {
+      NotificationModel.find({ userEmailToSendNotification: userEmail, notificationStatus: "un-seen" }, (err, result) => {
+        if (err) {
+          console.log("error while finding notification: ", err)
+          logger.error(err.message, 'socketlib: sendMyNotification', 10)
 
-      // socket.emit("verifyUser", "");
-  socket.on("sendMyNotification",(userEmail)=>{
+        } else {
+          console.log("notificationObj found successfully", result)
+          logger.info("notificationObj found successfully", 'socketlib: sendMyNotification', 1)
+          socket.emit("YourNotifications", result);
+        }
+      })
 
-    NotificationModel.find({userEmailToSendNotification:userEmail,notificationStatus:"un-seen"},(err,result)=>{
-      if (err) {
-        console.log("error while finding notification: ",err)
-        logger.error(err.message, 'socketlib: sendMyNotification', 10)
-        
-    }else{
-      console.log("notificationObj found successfully",result)
-      logger.info("notificationObj found successfully",'socketlib: sendMyNotification',1)
-      socket.emit("YourNotifications", result);
-    }
     })
 
   })
-
-    })
 
 
 }

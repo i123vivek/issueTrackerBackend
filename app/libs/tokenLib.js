@@ -15,7 +15,7 @@ let generateToken = (data, cb) => {
       data: data
     }
     let tokenDetails = {
-      token: jwt.sign(claims, secretKey),
+      token: jwt.sign(claims, secretKey), //generates a token .
       tokenSecret : secretKey
     }
     cb(null, tokenDetails)
@@ -27,6 +27,7 @@ let generateToken = (data, cb) => {
 
 let verifyClaim = (token,secretKey,cb) => {
   // verify a token symmetric
+  //decodes the token making it possible to view the original payload or claims.
   jwt.verify(token, secretKey, function (err, decoded) {
     if(err){
       console.log("error while verify token");
