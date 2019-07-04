@@ -58,29 +58,7 @@ let getSocialUser = (req, res) => {
         })
 }
 
-// let getAllUser = (req,res) =>{
-//     var allUserList = [];
-//     let getLocalUser = () =>{
-//         return new Promise((resolve,reject) =>{
-//             UserModel.find()
-//                 .exec((err,details) =>{
-//                     if(err){
-//                         logger.error(err.message, 'userController: getLocalUser', 10)
-//                         let apiResponse = response.generate(true, 'Failed To find local User', 500, null)
-//                         reject(apiResponse)
-//                     } else if(check.isEmpty(details)){
-//                         logger.info('no local user found', 'userController: getLocalUser');
-//                         let apiResponse = response.generate(false, 'no local user Found', 404, details)
-//                         resolve(apiResponse)
-//                     } else{
-//                         for(let x in details){
-                            
-//                         }
-//                     }
-//                 })
-//         })
-//     }
-// }
+
 
 let getSingleUser = (req, res) => {
     UserModel.findOne({ 'userId': req.params.userId })
@@ -93,9 +71,7 @@ let getSingleUser = (req, res) => {
                 let apiResponse = response.generate(true, 'Failed to find local user details', 500, null)
                 res.send(apiResponse)
             } else if (check.isEmpty(result)) {
-                // logger.info('No user found', 'userController: getSingleUser')
-                // let apiResponse = response.generate(true, 'No user found', 404, null)
-                // res.send(apiResponse)
+                
                 SocialUserModel.findOne({ 'userId': req.params.userId })
                     .select('-password -__v -_id')
                     .lean()
@@ -132,9 +108,7 @@ let deleteUser = (req, res) => {
             let apiResponse = response.generate(true, 'Failed To delete user', 500, null)
             res.send(apiResponse)
         } else if (check.isEmpty(result)) {
-            // logger.info('No User Found', 'userController: deleteUser')
-            // let apiResponse = response.generate(true, 'No User Found', 404, null)
-            // res.send(apiResponse)
+            
             SocialUserModel.findOneAndDelete({ 'userId': req.params.userId }).exec((err, result) => {
                 if (err) {
                     console.log(err)
@@ -169,9 +143,7 @@ let editUser = (req, res) => {
             let apiResponse = response.generate(true, 'Failed To edit user details', 500, null)
             res.send(apiResponse)
         } else if (check.isEmpty(result)) {
-            // logger.info('No User Found', 'userController: editUser')
-            // let apiResponse = response.generate(true, 'No User Found', 404, null)
-            // res.send(apiResponse)
+            
             SocialUserModel.update({ 'userId': req.params.userId }, options).exec((err, result) => {
                 if (err) {
                     console.log(err)

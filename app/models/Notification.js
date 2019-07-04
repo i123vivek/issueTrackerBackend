@@ -27,7 +27,7 @@ let notificationSchema = new Schema ({
     notificationPurpose:{
 
         type: String,
-        //default: ''
+        
         
     }
 })
